@@ -1,5 +1,5 @@
 from .animal import Animal
-
+from Algorithms.game_theory import GameTheory
 
 class Herbivore(Animal):
     def __init__(
@@ -27,11 +27,12 @@ class Herbivore(Animal):
 
         self.hunted = False
         self.hunter = None
+        self.game_theory = GameTheory()
 
     def __cleanup_on_death__(self) -> None:
         """Cleans up on death by resetting variables for the Herbivore and its hunter."""
         super().__cleanup_on_death__()
-        if self.hunted:
+        if self.hunted and self.hunter:
             self.hunter.food_found = False
             self.hunter.food_point = None
             self.hunter.prey = None
@@ -44,7 +45,7 @@ class Herbivore(Animal):
         Returns:
             bool or list: True if alive, False if dead.
         """
-        if self.hunted:
+        if self.hunted and self.hunter:
             self.hunter.queued_movements.append(self.__convert_pos__(self.pos))
             self.hunter.food_point = self.__convert_pos__(self.pos)
             if self.hunter.pos == self.pos:
@@ -59,4 +60,11 @@ class Herbivore(Animal):
 
     def __find_food__(self) -> None:
         """Finds food (berries) for the Herbivore."""
-        self.__find_berry__()
+        predator_count = len(self.hunter.population) if self.hunter else 0
+        prey_count = len(self.population)
+        predator_strategy, prey_strategy = self.game_theory.predator_prey_game(predator_count, prey_count)
+
+        if prey_strategy == 'Hide':
+            self.__normal_movement__()
+        else:
+            self.__find_berry__()

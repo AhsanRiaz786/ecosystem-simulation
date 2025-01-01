@@ -3,7 +3,6 @@ import sys
 from settings import *
 from queue import PriorityQueue
 
-
 def __manhatten_distance__(p1: tuple, p2: tuple) -> int:
     """Calculates the manhatten distance between two points.
 
@@ -30,21 +29,16 @@ def __get_neighbors__(p: tuple, end: tuple, map: list) -> list:
     Returns:
         list: contains all valid neighboring tiles
     """
-    up = (p[0], p[1] - 1)
-    right = (p[0] + 1, p[1])
-    down = (p[0], p[1] + 1)
-    left = (p[0] - 1, p[1])
-
     neighbors = []
 
-    if p[1] != 0 and (map[up[1]][up[0]] != 5.0 or up == end):
-        neighbors.append(up)
-    if p[0] != (MAPSIZE-1) and (map[right[1]][right[0]] != 5.0 or right == end):
-        neighbors.append(right)
-    if p[1] != (MAPSIZE-1) and (map[down[1]][down[0]] != 5.0 or down == end):
-        neighbors.append(down)
-    if p[0] != 0 and (map[left[1]][left[0]] != 5.0 or left == end):
-        neighbors.append(left)
+    if p[1] > 0 and (map[p[1] - 1][p[0]] != 5.0 or (p[0], p[1] - 1) == end):
+        neighbors.append((p[0], p[1] - 1))
+    if p[0] < (MAPSIZE - 1) and (map[p[1]][p[0] + 1] != 5.0 or (p[0] + 1, p[1]) == end):
+        neighbors.append((p[0] + 1, p[1]))
+    if p[1] < (MAPSIZE - 1) and (map[p[1] + 1][p[0]] != 5.0 or (p[0], p[1] + 1) == end):
+        neighbors.append((p[0], p[1] + 1))
+    if p[0] > 0 and (map[p[1]][p[0] - 1] != 5.0 or (p[0] - 1, p[1]) == end):
+        neighbors.append((p[0] - 1, p[1]))
 
     return neighbors
 
@@ -114,6 +108,9 @@ def find_path(grid: list, start: tuple, end: tuple) -> list:
             return __reconstruct_path__(came_from, end)
 
         for neighbor in __get_neighbors__(current, end, grid):
+            if neighbor not in score_g:
+                continue  # Skip neighbors that are out of bounds
+
             score_g_temp = score_g[current] + 1
 
             if score_g_temp < score_g[neighbor]:
@@ -133,7 +130,6 @@ def find_path(grid: list, start: tuple, end: tuple) -> list:
 def __test__():
     """Test function to test the algorithm directly from the file."""
     print("Test function currently unavailable.")
-
 
 if __name__ == "__main__":
     __test__()

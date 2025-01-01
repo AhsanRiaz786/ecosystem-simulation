@@ -4,7 +4,6 @@ import random as rnd
 import matplotlib.pyplot as plt
 from settings import *
 
-
 def __perlin__(x: np.ndarray, y: np.ndarray, seed: int = 0) -> list:
     """Generates Perlin noise for given x and y coordinates.
 
@@ -39,7 +38,6 @@ def __perlin__(x: np.ndarray, y: np.ndarray, seed: int = 0) -> list:
     x2 = __lerp__(tr, bl, f1)
     return __lerp__(x1, x2, f2)
 
-
 def __lerp__(a: float, b: float, x: float) -> float:
     """Linear interpolation.
 
@@ -53,7 +51,6 @@ def __lerp__(a: float, b: float, x: float) -> float:
     """
     return a + x * (b - a)
 
-
 def __fade__(t: float) -> float:
     """Calculates the fade value for Perlin noise.
 
@@ -64,7 +61,6 @@ def __fade__(t: float) -> float:
         float: The calculated fade value.
     """
     return 6 * t**5 - 15 * t**4 + 10 * t**3
-
 
 def __gradient__(h: int, x: float, y: float):
     """Calculates the gradient vectors and the dot product.
@@ -77,7 +73,6 @@ def __gradient__(h: int, x: float, y: float):
     vectors = np.array([[0, 1], [0, -1], [1, 0], [-1, 0]])
     g = vectors[h % 4]
     return g[:, :, 0] * x + g[:, :, 1] * y
-
 
 def generate_plot(gseed: int = None) -> list:
     """Generates a plot of Perlin noise.
@@ -98,7 +93,6 @@ def generate_plot(gseed: int = None) -> list:
 
     return p
 
-
 def generate_map(gseed: int = None) -> list:
     """Generates a map using Perlin noise.
 
@@ -108,15 +102,23 @@ def generate_map(gseed: int = None) -> list:
     Returns:
         list: The generated map.
     """
-    p = generate_plot(gseed)
-    randmap = np.zeros((50, 50))
-    land_tiles = []
-    for y, x in itertools.product(range(50), range(50)):
-        if -0.05 < p[y][x] < 0.4:
-            randmap[y][x] = 2.0
-            land_tiles.append((y, x))
-        else:
-            randmap[y][x] = 5.0
+    MIN_LAND_PERCENT = 0.65  # Minimum percentage of land tiles required
+
+    while True:
+        p = generate_plot(gseed)
+        randmap = np.zeros((50, 50))
+        land_tiles = []
+        for y, x in itertools.product(range(50), range(50)):
+            if -0.05 < p[y][x] < 0.4:
+                randmap[y][x] = 2.0
+                land_tiles.append((y, x))
+            else:
+                randmap[y][x] = 5.0
+
+        land_percent = len(land_tiles) / (50 * 50)
+        if land_percent >= MIN_LAND_PERCENT:
+            break
+
     b_needed = int(len(land_tiles) * B_PERCENT)
     h_needed = int(len(land_tiles) * H_PERCENT)
     c_needed = int(len(land_tiles) * C_PERCENT)
@@ -143,13 +145,11 @@ def generate_map(gseed: int = None) -> list:
 
     return randmap
 
-
 def main() -> None:
     """Main function to generate and display a plot of Perlin noise."""
     p = generate_plot()
     plt.imshow(p, origin="upper")
     plt.show()
-
 
 if __name__ == "__main__":
     main()
