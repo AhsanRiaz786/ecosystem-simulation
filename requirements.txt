@@ -1,0 +1,6 @@
+pygame>=2.5.0
+numpy>=1.24.0
+matplotlib>=3.7.0
+noise>=1.2.2  # For Perlin noise generation
+pandas>=2.0.0  # For data handling
+scipy>=1.10.0  # For scientific computations
